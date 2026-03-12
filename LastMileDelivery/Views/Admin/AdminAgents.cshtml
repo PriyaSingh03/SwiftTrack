@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "Agents";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<!-- Header -->
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>Delivery Agents</h1>
+        <p>Manage your delivery team</p>
+    </div>
+</header>
+
+<!-- Agent Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-users"></i>
+        </div>
+        <h3>@ViewBag.TotalAgents</h3>
+        <p>Total Agents</p>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <h3>@ViewBag.ActiveAgents</h3>
+        <p>Active Now</p>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fas fa-user-clock"></i>
+        </div>
+        <h3>@ViewBag.InactiveAgents</h3>
+        <p>Inactive Now</p>
+    </div>
+</div>
+
+<!-- Agents Grid -->
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Phone No.</th>
+                <th>Status</th>
+                <th>Deliveries</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var agent in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div>
+                                <strong>@agent.Username</strong>
+                                <small>ID: #CUS-@agent.UserId</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@agent.Email</td>
+                    <td>@agent.Role</td>   
+                    <td>@agent.PhoneNumber</td>
+                    <td>
+                        <span class="badge @(agent.Status == "Active" ? "bg-success" : "bg-secondary")">
+                            @agent.Status
+                        </span>
+                    </td>
+                    <td>@agent.Deliveries Orders</td>   @* Orders count later *@
+                                       
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

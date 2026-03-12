@@ -1,0 +1,106 @@
+﻿@model List<LastMileDelivery.Models.Delivery>
+
+@{
+    ViewData["Title"] = "My Deliveries";
+    Layout = "~/Views/Shared/_Agent.cshtml";
+}
+
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>My Deliveries</h1>
+        <p>Deliveries assigned to you</p>
+    </div>
+
+    <div class="header-right">
+        <form asp-controller="Agent" asp-action="ToggleSelfStatus" method="post">
+            <button type="submit" class="status-pill-btn @(ViewBag.AgentStatus == "Active" ? "is-active" : "is-inactive")">
+                <span class="status-dot"></span>
+                <span class="status-text">@ViewBag.AgentStatus</span>
+                <i class="fas @(ViewBag.AgentStatus == "Active" ? "fa-toggle-on" : "fa-toggle-off") toggle-icon"></i>
+            </button>
+        </form>
+    </div>
+</header>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Payment Status</th> @* Added Header *@
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Any())
+            {
+                foreach (var d in Model)
+                {
+                    // NEW LOGIC: Find the specific invoice for THIS delivery ID
+            var specificInvoice = d.Customer.Invoices?
+                .FirstOrDefault(i => i.Items.Any(ii => ii.Description.Contains($"Delivery Service #{d.DeliveryId}")));
+            
+            var invStatus = specificInvoice?.Status ?? "No Invoice";
+            var isPaid = invStatus == "Paid";
+                    <tr>
+                        <td><strong>#DEL-@d.DeliveryId</strong></td>
+                        <td>@d.Customer.Username</td>
+                        <td>@d.Address</td>
+
+                        <td>
+                            <span class="status status-@d.Status.ToLower()">
+                                @d.Status
+                            </span>
+                        </td>
+
+                        @* Added Payment Status cell *@
+                        @* Payment Status cell linked to specific Delivery ID *@
+                <td>
+                    <span class="status status-@invStatus.ToLower().Replace(" ", "-")">
+                        @invStatus
+                    </span>
+                </td>
+
+                        <td style="white-space: nowrap;">
+                            @* Determine if the order is in a final state (Delivered or Cancelled) *@
+                            @{
+                                bool isFinished = d.Status == "DELIVERED" || d.Status == "CANCELLED";
+                            }
+
+                            @if (isPaid && !isFinished)
+                            {
+                                @* Active and Paid: Show normal buttons *@
+                                <a asp-controller="Agent" asp-action="Update" asp-route-id="@d.DeliveryId" class="btn btn-primary btn-sm">Update</a>
+                                <a asp-controller="Agent" asp-action="ViewDelivery" asp-route-id="@d.DeliveryId" class="btn btn-primary btn-sm">View</a>
+                            }
+                            else if (isFinished)
+                            {
+                                @* Delivered or Cancelled: Disable both buttons *@
+                                <a asp-controller="Agent" asp-action="Update" asp-route-id="@d.DeliveryId" class="btn btn-primary btn-sm">Update</a>
+                                <button class="btn btn-secondary btn-sm" disabled title="Order is @d.Status">View</button>
+                            }
+                            else
+                            {
+                                @* Unpaid: Disable both buttons (your original logic) *@
+                                <button class="btn btn-secondary btn-sm" disabled title="Update locked until payment is Paid">Update</button>
+                                <button class="btn btn-secondary btn-sm" disabled title="View locked until payment is Paid">View</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="text-align:center;">
+                        No deliveries assigned
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

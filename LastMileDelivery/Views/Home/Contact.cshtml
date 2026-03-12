@@ -1,0 +1,204 @@
+﻿@{
+
+    ViewData["Title"] = "Contact Page";
+
+    Layout = "_Master";
+
+}
+
+
+<div class="bg-primary py-5 text-white position-relative overflow-hidden"
+     style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;">
+
+    <div class="position-absolute w-100 h-100 top-0 start-0"
+         style="background: url('/assets/support-img.png') center/cover; opacity: 0.2;">
+    </div>
+
+    <div class="container py-5 text-center position-relative z-1">
+        <h1 class="display-4 font-heading fw-bold mb-3 text-dark">Help Center</h1>
+        <p class="lead text-dark mx-auto fw-medium" style="max-width: 600px">
+
+            How can we help you today? Search our knowledge base or get in touch with support.
+        </p>
+        <div class="mt-4 mx-auto" style="max-width: 500px">
+            <div class="input-group input-group-lg shadow-sm">
+                <span class="input-group-text border-0 bg-white">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control border-0" placeholder="Search for answers..." />
+                <button class="btn btn-dark fw-bold px-4">Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="bg-warning bg-opacity-10 text-warning d-inline-block p-3 rounded-circle mb-3">
+                            <i class="bi bi-box-seam fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Tracking Issues</h4>
+                        <p class="text-muted">
+
+                            Can't find your package? Status not updating? Learn how to
+
+                            troubleshoot tracking problems.
+                        </p>
+                        <a href="#" class="btn btn-outline-dark btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="bg-warning bg-opacity-10 text-warning d-inline-block p-3 rounded-circle mb-3">
+                            <i class="bi bi-credit-card fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Billing & Payments</h4>
+                        <p class="text-muted">
+
+                            Questions about invoices, shipping rates, or payment methods?
+
+                            Find answers here.
+                        </p>
+                        <a href="#" class="btn btn-outline-dark btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="bg-warning bg-opacity-10 text-warning d-inline-block p-3 rounded-circle mb-3">
+                            <i class="bi bi-person-gear fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Account Settings</h4>
+                        <p class="text-muted">
+
+                            Manage your profile, change password, or update notification
+
+                            preferences.
+                        </p>
+                        <a href="#" class="btn btn-outline-dark btn-sm">Read Articles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h3 class="font-heading fw-bold mb-4 text-center">
+
+                    Frequently Asked Questions
+                </h3>
+                <div class="accordion shadow-sm" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-1">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#faq1">
+
+                                How do I track my shipment?
+                            </button>
+                        </h2>
+                        <div id="faq1"
+                             class="accordion-collapse collapse show"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+
+                                You can track your shipment by entering your Tracking ID on
+
+                                our homepage or in the customer dashboard. Real-time updates
+
+                                are available 24/7.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-1">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#faq2">
+
+                                What if I'm not home during delivery?
+                            </button>
+                        </h2>
+                        <div id="faq2"
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+
+                                Our delivery agent will attempt to contact you. You can also
+
+                                reschedule the delivery through your tracking link or
+
+                                customer dashboard.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-1">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#faq3">
+
+                                Do you offer insurance for high-value items?
+                            </button>
+                        </h2>
+                        <div id="faq3"
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+
+                                Yes, we offer optional insurance coverage for high-value
+
+                                shipments. You can select this option while calculating
+
+                                shipping costs or booking a shipment.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-1">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#faq4">
+
+                                How can I become a delivery partner?
+                            </button>
+                        </h2>
+                        <div id="faq4"
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+
+                                Visit our "Careers" page or contact our support team. You'll
+
+                                need valid identification and a driving license to apply.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="text-center mt-5">
+                    <p class="text-muted">
+
+                        Still can't find what you're looking for?
+                    </p>
+                    <a asp-controller="Home" asp-action="Contact" class="btn btn-warning px-4 fw-bold">Contact Support</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+ paste this to the contact/support page priyaa

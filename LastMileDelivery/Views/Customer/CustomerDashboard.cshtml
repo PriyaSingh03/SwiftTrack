@@ -1,0 +1,343 @@
+﻿@{
+    ViewData["Title"] = "Customer Dashboard - Track Order";
+    Layout = "~/Views/Shared/_Customer.cshtml";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+<div class="dashboard-layout">
+    <main class="main-content">
+
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>Track Your Order</h1>
+                <p>Real-time delivery tracking</p>
+            </div>
+        </header>
+
+        <form method="get" asp-action="CustomerDashboard" asp-controller="Customer">
+            <div class="track-search">
+                <div class="search-box large" style="display:flex; align-items:center; gap:6px;">
+                    <span style="padding: 10px 12px; background: #f1f3f5; border: 1px solid #ddd; border-radius: 6px 0 0 6px; font-weight: 600;">
+                        #DEL-
+                    </span>
+                    <input type="number" name="orderId" placeholder="Enter order number" style="border-radius: 0 6px 6px 0;" required />
+                </div>
+                <button class="btn btn-primary">
+                    <i class="fas fa-search"></i> Track
+                </button>
+            </div>
+        </form>
+        @if (ViewBag.HasSearched == true)
+        {
+            @if (ViewBag.NotFound == true)
+            {
+                <div class="alert alert-danger mt-3">Order number not found. Please check and try again.</div>
+            }
+            else
+            {
+        <div class="tracking-layout">
+            <div class="card tracking-card">
+                <div class="card-header">
+                    <div>
+                        <h3>Order #@ViewBag.DeliveryId</h3>
+                        <span class="order-date">Status Updated: @DateTime.Now.ToString("MMM dd, yyyy")</span>
+                    </div>
+                    <span class="status status-transit">@ViewBag.Status</span>
+                </div>
+
+                <div class="tracking-timeline">
+                    <div class="timeline-item completed">
+                        <div class="timeline-marker"><i class="fas fa-check"></i></div>
+                        <div class="timeline-content"><strong>Order Placed</strong></div>
+                    </div>
+                    <div class="timeline-item @(ViewBag.Status != "ASSIGNED" ? "completed" : "active")">
+                        <div class="timeline-marker"><i class="fas fa-box"></i></div>
+                        <div class="timeline-content"><strong>Processed</strong></div>
+                    </div>
+                    <div class="timeline-item @(ViewBag.Status == "IN_TRANSIT" ? "active" : (ViewBag.Status == "DELIVERED" ? "completed" : "pending"))">
+                        <div class="timeline-marker"><i class="fas fa-truck"></i></div>
+                        <div class="timeline-content"><strong>In Transit</strong></div>
+                    </div>
+                    <div class="timeline-item @(ViewBag.Status == "DELIVERED" ? "active" : "pending")">
+                                <div class="timeline-marker"><i class="fas @(ViewBag.Status == "DELIVERED" ? "fa-check" : "fa-check-circle")"></i></div>
+                        <div class="timeline-content"><strong>Delivered</strong></div>
+                    </div>
+                </div>
+
+                <div class="agent-info-card">
+                        <strong>@ViewBag.AgentName</strong>
+                        <span>Your Delivery Agent</span>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Live Location</h3>
+                    @if (ViewBag.ETA != null)
+                    {
+                        <span class="eta-badge" style="background: #e3f2fd; color: #1976d2; padding: 5px 10px; border-radius: 20px; font-weight: bold;">
+                            <i class="fas fa-clock"></i> ETA: @ViewBag.ETA
+                        </span>
+                    }
+                </div>
+
+                        @if (ViewBag.Status == "CANCELLED")
+                        {
+                            <div class="p-5 text-center text-danger" style="background-color: #fff5f5; border: 1px solid #ffc9c9; border-radius: 8px;">
+                                <i class="fas fa-times-circle fa-3x mb-3"></i>
+                                <h4>Order Cancelled</h4>
+                                <p>This delivery has been cancelled. Please contact for more details.</p>
+                            </div>
+                        }
+                else if (ViewBag.FromLat == null)
+                {
+                    <div class="p-5 text-center text-success">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <h4>Delivery Completed</h4>
+                        <p>Your order has been successfully delivered to your doorstep.</p>
+                    </div>
+                }
+                else
+                {
+                    <div id="map" style="height:450px; border-radius:8px; border: 1px solid #eee;"></div>
+                    <div class="map-info-footer text-center p-3" style="background: #f8f9fa;">
+                        <i class="fas fa-route"></i>
+                        <strong>Distance Remaining:</strong> @ViewBag.Distance km
+                    </div>
+                }
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Delivery Details</h3>
+                </div>
+                <div class="delivery-details-grid" style="padding: 20px;">
+                    <div class="detail-item" style="display: flex; gap: 15px; align-items: center;">
+                        <i class="fas fa-map-pin" style="color: #e74c3c; font-size: 1.5rem;"></i>
+                        <div>
+                            <small style="display: block; color: #666;">Delivery Address</small>
+                            <strong>@ViewBag.Address</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3>Payment Details</h3>
+                        </div>
+                        <div class="delivery-details-grid detail-item" style="display: flex; gap: 15px; align-items: center; border-left: 1px solid #eee; padding-left: 20px;">
+                            <i class="fas fa-file-invoice-dollar" style="color: #2ecc71; font-size: 1.5rem;"></i>
+                            <div>
+                                <small style="display: block; color: #666;">Invoice Status</small>
+
+                                @if (ViewBag.InvoiceStatus == "Paid")
+                                {
+                                    <span style="color: #2ecc71; font-weight: bold;">
+                                        <i class="fas fa-check-circle"></i> Paid
+                                    </span>
+                                }
+                                else if (ViewBag.Status == "CANCELLED")
+                                {
+                                    @* This disables the payment link when the order is cancelled *@
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="color: #6c757d; font-weight: bold;">Payment Unavailable (Cancelled)</span>
+                                        <button class="btn btn-secondary btn-sm" disabled style="padding: 5px 15px; border-radius: 4px; cursor: not-allowed;">
+                                            Pay Now
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="color: #e74c3c; font-weight: bold;">Pending (@ViewBag.TotalAmount)</span>
+                                        <a href="@Url.Action("ProcessPayment", "Customer", new { id = ViewBag.DeliveryId })"
+                                           class="btn btn-primary btn-sm" style="padding: 5px 15px; border-radius: 4px;">
+                                            Pay Now
+                                        </a>
+                                    </div>
+                                }
+                            
+                            </div>
+                        </div>
+            </div>
+        </div>
+        }
+        }
+        @* --- Show this only BEFORE the customer searches for a specific order --- *@
+        else
+        {
+        <div class="container mt-4">
+            <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                <div class="card-header bg-white py-3">
+                    <h3 class="mb-0" style="font-size: 1.25rem; color: #2d3436;">
+                        <i class="fas fa-history me-2 text-primary"></i> My Recent Orders
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead style="background-color: #f8f9fa;">
+                                <tr>
+                                    <th class="ps-4">Delivery ID</th>
+                                    <th>Status</th>
+                                    <th>Delivery Agent</th>
+                                    <th>Agent Contact</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.MyOrders != null)
+                                {
+                                    foreach (var order in ViewBag.MyOrders)
+                                    {
+                                        <tr>
+                                            <td class="ps-4 fw-bold">#DEL-@order.DeliveryId</td>
+                                            <td>
+                                                <span class="badge @(order.Status == "DELIVERED" ? "bg-success" : (order.Status == "CANCELLED" ? "bg-danger" : "bg-primary"))"
+                                                      style="padding: 6px 12px; border-radius: 20px;">
+                                                    @order.Status
+                                                </span>
+                                            </td>
+                                            <td>@(order.Agent?.Username ?? "Not Assigned")</td>
+                                            <td>
+                                                @if (order.Agent != null)
+                                                {
+                                                    <a href="tel:@order.Agent.PhoneNumber" class="text-decoration-none">
+                                                        <i class="fas fa-phone-alt me-1"></i> @order.Agent.PhoneNumber
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">N/A</span>
+                                                }
+                                            </td>
+                                            
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            No active orders found.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    
+
+    </main>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+<script>
+    @if (ViewBag.FromLat != null && ViewBag.ToLat != null)
+    {
+        <text>
+            // --- 1. SETUP MAP ---
+            var map = L.map('map').setView([@ViewBag.FromLat, @ViewBag.FromLng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            // --- 2. DEFINE ICONS ---
+            var agentIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1048/1048329.png',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40] // Center bottom
+            });
+
+            var homeIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1239/1239525.png',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+                var warehouseIcon = L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2271/2271068.png',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
+                });
+
+                    // Fixed Warehouse Marker
+                    // Warehouse marker with a lower zIndex so the truck moves over it
+                    L.marker([@ViewBag.FromLat, @ViewBag.FromLng], {
+                        icon: warehouseIcon,
+                        zIndexOffset: -500
+                    }).bindPopup("<b>Warehouse</b>").addTo(map);
+
+            // Global variable to track the agent marker
+            var liveAgentMarker = null;
+
+            // --- 3. INITIALIZE ROUTING ---
+            var control = L.Routing.control({
+                waypoints: [
+                    L.latLng(@ViewBag.FromLat, @ViewBag.FromLng), // Start (Agent)
+                    L.latLng(@ViewBag.ToLat, @ViewBag.ToLng)     // End (Customer)
+                ],
+                lineOptions: {
+                    styles: [{ color: '#3498db', opacity: 0.8, weight: 6 }]
+                },
+                createMarker: function(i, wp, n) {
+                    if (i === 0) {
+                        // STORE THE AGENT MARKER IN VARIABLE
+                        liveAgentMarker = L.marker(wp.latLng, { icon: agentIcon }).bindPopup("Agent is on the way");
+                        return liveAgentMarker;
+                    } else {
+                        return L.marker(wp.latLng, { icon: homeIcon }).bindPopup("Delivery Address");
+                    }
+                },
+                addWaypoints: false,
+                draggableWaypoints: false,
+                show: false
+            }).addTo(map);
+
+            // Fit bounds once route is found
+            control.on('routesfound', function(e) {
+                var routes = e.routes;
+                var bounds = L.latLngBounds(routes[0].coordinates);
+                map.fitBounds(bounds, { padding: [50, 50] });
+            });
+
+            // --- 4. REAL-TIME POLLING LOGIC ---
+            // Ask server for location every 5 seconds
+            setInterval(function() {
+                var orderId = '@ViewBag.DeliveryId';
+
+                $.get('/Customer/GetLiveStatus', { orderId: orderId }, function(data) {
+                    if (data.success) {
+                        // Update Marker Position
+                        if (data.lat != null && data.lng != null && liveAgentMarker != null) {
+                            var newLatLng = new L.LatLng(data.lat, data.lng);
+                            liveAgentMarker.setLatLng(newLatLng);
+                        }
+
+                        // Update Status Text on Page
+                        if(data.status) {
+                            $('.status').text(data.status); // Updates the status badge
+
+                            // Optional: Change color based on status
+                            if(data.status === "DELIVERED") {
+                                 $('.status').removeClass('status-transit').addClass('status-delivered');
+                                 // You could also reload the page here to show the "Completed" view
+                                 // location.reload();
+                            }
+                                    if(data.status === "CANCELLED") {
+             $('.status').css({'background-color': '#ffebee', 'color': '#c62828', 'border': '1px solid #ffcdd2'});
+             location.reload(); // Reload the page to show the "Order Cancelled" UI box we added above
+        }
+                        }
+                    }
+                });
+            }, 5000); // 5 seconds
+        </text>
+    }
+</script>

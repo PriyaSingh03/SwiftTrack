@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<!-- Header -->
+<header class="dashboard-header">
+    <div class="page-title">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome back! Here's what's happening today.</p>
+    </div>
+    
+</header>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-icon blue"><i class="fas fa-box"></i></div>
+          
+        </div>
+
+        <h3>@Model.TotalDeliveries</h3>
+        <p>Total Deliveries</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-icon orange"><i class="fas fa-truck"></i></div>
+            
+        </div>
+        <h3>@Model.ActiveAgents</h3>
+        <p>Active Agents</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+        <h3>@Model.TotalCustomers</h3>
+        <p>Total Customers</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-icon purple"><i class="fas fa-clock"></i></div>
+           
+        </div>
+        <h3>@Model.PendingDeliveries</h3>
+        <p>Delivered</p>
+    </div>
+</div>
+
+<div class="reports-grid">
+
+    <!-- Delivery Performance -->
+    <div class="card report-card">
+        <div class="card-header">
+            <h3>Delivery Performance</h3>
+
+        </div>
+
+        <div class="chart-placeholder">
+            <i class="fas fa-chart-line"></i>
+            <p>Delivery Success Rate Chart</p>
+
+            <div class="chart-bars">
+                <div class="bar" style="height:60%"></div>
+                <div class="bar" style="height:75%"></div>
+                <div class="bar" style="height:55%"></div>
+                <div class="bar" style="height:85%"></div>
+                <div class="bar" style="height:70%"></div>
+                <div class="bar" style="height:90%"></div>
+                <div class="bar" style="height:95%"></div>
+            </div>
+        </div>
+
+        <div class="report-stats">
+            <div class="report-stat">
+                <span class="label">Success Rate</span>
+                <span class="value">@Model.SuccessRate.ToString("F1")%</span>
+            </div>
+            <div class="report-stat">
+                <span class="label">Avg Delivery Time</span>
+                <span class="value">@Model.AvgDeliveryTime min</span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Delivery Status Distribution -->
+    <div class="card report-card">
+        <div class="card-header">
+            <h3>Delivery Status Distribution</h3>
+        </div>
+
+        <div class="status-distribution">
+            <div class="status-item">
+                <div class="status-bar">
+                    <div class="status-fill delivered" style="width:@Model.DeliveredPercentage%"></div>
+                </div>
+                <div class="status-info">
+                    <span class="status-label">Delivered</span>
+                    <span class="status-value">@Model.DeliveredPercentage.ToString("F0")%</span>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div class="status-bar">
+                    <div class="status-fill transit" style="width:@Model.InTransitPercentage%"></div>
+                </div>
+                <div class="status-info">
+                    <span class="status-label">In Transit</span>
+                    <span class="status-value">@Model.InTransitPercentage.ToString("F0")%</span>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div class="status-bar">
+                    <div class="status-fill pending" style="width:@Model.PendingPercentage%"></div>
+                </div>
+                <div class="status-info">
+                    <span class="status-label">Assigned</span>
+                    <span class="status-value">@Model.PendingPercentage.ToString("F0")%</span>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div class="status-bar">
+                    <div class="status-fill cancelled" style="width:@Model.CancelledPercentage%"></div>
+                </div>
+                <div class="status-info">
+                    <span class="status-label">Cancelled</span>
+                    <span class="status-value">@Model.CancelledPercentage.ToString("F0")%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

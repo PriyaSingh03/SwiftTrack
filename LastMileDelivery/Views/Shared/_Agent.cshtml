@@ -1,0 +1,55 @@
+﻿@{
+    Layout = null;
+    var username = Context.Session.GetString("Username");
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"] - SwiftTrack Agent</title>
+    <link rel="stylesheet" href="/css/agent.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/customer.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <div class="dashboard">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-truck"></i></div>
+                <span class="font-heading fw-bold fs-4 text-white">SwiftTrack</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a asp-controller="Agent" asp-action="Dashboard" class="active">
+                    <i class="fas fa-list"></i> My Deliveries
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-profile-centered">
+                    <div class="profile-info">
+                        <h3 style="margin:0; font-size: 1rem; color: #fff;">@username  (Delivery Agent)</h3>
+                        @* <p style="margin:0; font-size: 0.8rem; color: #adb5bd;">@displayRole</p> *@
+                    </div>
+                    @* <hr class="profile-divider" /> *@
+                    <br />
+                </div>
+                <a asp-controller="Auth" asp-action="Logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+            @RenderBody()
+        </main>
+
+    </div>
+
+</body>
+</html>

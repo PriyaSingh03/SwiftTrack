@@ -1,0 +1,112 @@
+﻿@model List<LastMileDelivery.Models.Delivery>
+
+@{
+    ViewData["Title"] = "Deliveries";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>Deliveries Management</h1>
+        <p>Manage all delivery assignments</p>
+    </div>
+    <div class="header-right">
+        <a asp-controller="Admin" asp-action="AddDelivery" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Delivery
+        </a>
+    </div>
+</header>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Destination</th>
+                <th>Agent</th>
+                <th>Status</th>
+                <th>Proof</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var d in Model)
+                {
+                    <tr>
+                        <td><strong>#DEL-@d.DeliveryId</strong></td>
+                        <td>@d.Customer.Username</td>
+                        <td>@d.Address</td>
+                        <td>@(d.Agent != null ? d.Agent.Username : "Unassigned")</td>
+                        <td>
+                            <span class="status status-@d.Status.ToLower()">@d.Status</span>
+                        </td>
+
+                        <td>
+                            @if (d.Status == "DELIVERED" && d.ProofOfDelivery != null)
+                            {
+                                <button type="button"
+                                        class="btn btn-sm btn-success"
+                                        onclick="showProof('@d.ProofOfDelivery.PhotoURL', '@d.ProofOfDelivery.Timestamp')">
+                                    <i class="fas fa-image"></i> View
+                                </button>
+                            }
+                            else if (d.Status == "DELIVERED")
+                            {
+                                <span class="text-muted small">No Proof</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+
+                        <td class="actions">
+
+                            <form asp-action="DeleteDelivery" method="post" style="display:inline;"
+                                  onsubmit="return confirm('Are you sure you want to delete this delivery?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@d.DeliveryId" />
+                                <button type="submit" class="action-btn danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="7" class="text-center">No deliveries found</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="proofModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Proof of Delivery</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="proofImage" src="" class="img-fluid rounded mb-3" alt="Proof" />
+                <p class="text-muted" id="proofTime"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showProof(url, time) {
+        document.getElementById('proofImage').src = url; // Ensure this URL is accessible (e.g., /uploads/...)
+        document.getElementById('proofTime').innerText = "Delivered at: " + new Date(time).toLocaleString();
+
+        var myModal = new bootstrap.Modal(document.getElementById('proofModal'));
+        myModal.show();
+    }
+</script>

@@ -1,0 +1,132 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SwiftTrack</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+</head>
+<body>
+    @* NAVBAR *@
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home")">
+                <div class="logo-icon"><i class="fa-solid fa-truck"></i></div>
+                <span class="font-heading fw-bold fs-4 text-white">SwiftTrack</span>
+            </a>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link " href="@Url.Action("Index", "Home")">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="@Url.Action("About", "Home")">Team</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="@Url.Action("Feature", "Home")">Feature</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="@Url.Action("Contact", "Home")">Contact</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-warning fw-bold px-4" asp-controller="Auth" asp-action="Login">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="position-relative vh-100 d-flex align-items-center justify-content-center text-center text-white overflow-hidden" style="margin-top: -76px">
+        <div class="position-absolute w-100 h-100"
+             style="
+          background: linear-gradient(
+              rgba(15, 23, 42, 0.7),
+              rgba(15, 23, 42, 0.7)
+            ),
+            url('/assets/hero-bg-img.png') center/cover;
+        "></div>
+        <div class="position-relative z-1 container p-5">
+            <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase tracking-wider">World Class Logistics</span>
+            <h1 class="display-1 font-heading fw-bold mb-4">
+                Delivering the Future,<br />One Package at a Time.
+            </h1>
+            <p class="lead mb-5 text-light opacity-75 mx-auto"
+               style="max-width: 700px">
+                Experience real-time tracking, AI-optimized routing, and secure
+                deliveries with SwiftTrack's next-generation logistics platform.
+            </p>
+            @* <div class="d-flex justify-content-center gap-3">
+<a asp-controller="Dashboard" asp-action="Login"
+                   class="btn btn-primary btn-lg px-5 py-3 fw-bold rounded-1">Track Shipment</a>
+<a asp-controller="Home" asp-action="Contact"
+                   class="btn btn-outline-light btn-lg px-5 py-3 fw-bold rounded-1">Get a Quote</a>
+</div> *@
+        </div>
+    </header>
+
+
+
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+
+    @* Footer *@
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo" style="color: white">
+                        <div class="logo-icon"><i class="fa-solid fa-truck"></i></div>
+                        <span>SwiftTrack</span>
+                    </a>
+                    <p>
+                        Revolutionizing last-mile delivery with smart tracking and
+                        optimization solutions.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <a href="@Url.Action("Feature", "Home")">Features</a>
+                    <a href="@Url.Action("Feature", "Home")">Pricing</a>
+                    <a href="#">Integration</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <a href="@Url.Action("About", "Home")">About Us</a>
+                    <a href="@Url.Action("About", "Home")">Careers</a>
+                    <a href="@Url.Action("About", "Contact")">Contact</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <a href="@Url.Action("Contact", "Home")">Help Center</a>
+                    <a href="#">Documentation</a>
+                    <a href="#">API Reference</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SwiftTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,115 @@
+﻿@model LastMileDelivery.Models.Invoice
+@{
+    ViewData["Title"] = "Invoice " + Model.InvoiceNumber;
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<style>
+    @@media print {
+        /* 1. Hide Admin Layout Elements (Sidebar, Nav, Footer) */
+        nav, .sb-topnav, #layoutSidenav_nav, .sb-nav-fixed, footer, header {
+            display: none !important;
+        }
+        /* 2. Reset Main Content Area */
+        #layoutSidenav_content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+            margin-top: 0 !important;
+        }
+        /* 3. Force Body to be White and Full Width */
+        body {
+            background-color: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            visibility: hidden; /* Hide everything by default */
+        }
+        /* 4. Only show the Invoice Container */
+        .invoice-container, .invoice-container * {
+            visibility: visible; /* Show only the invoice */
+        }
+
+        .invoice-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        /* 5. Hide the buttons explicitly */
+        .d-print-none {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="container mt-4 mb-5 invoice-container">
+    <div class="card">
+        <div class="card-body p-5">
+            <div class="d-flex justify-content-between mb-5">
+                <div>
+                    <h2 class="text-primary">LastMile Delivery</h2>
+                    <p class="text-muted">Fast, Reliable, Everywhere.</p>
+                </div>
+                <div class="text-end">
+                    <h4>Invoice</h4>
+                    <p class="mb-1"><strong>#@Model.InvoiceNumber</strong></p>
+                    <p class="mb-1">Date: @Model.CreatedDate.ToString("dd MMM yyyy")</p>
+                    <p class="mb-0 text-danger">Due: @Model.DueDate.ToString("dd MMM yyyy")</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <h5>Bill To:</h5>
+                    <p>
+                        <strong>@(Model.Customer != null ? Model.Customer.Username : "Guest")</strong><br />
+                        @(Model.Customer != null ? Model.Customer.Email : "")<br />
+                    </p>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-end">Unit Price</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Items != null)
+                    {
+                        foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Description</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">₹@item.UnitPrice.ToString("N2")</td>
+                                <td class="text-end">₹@item.TotalPrice.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Grand Total</td>
+                        <td class="text-end fw-bold fs-5">₹@Model.TotalAmount.ToString("N2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="mt-5">
+                <p class="text-muted text-center">Thank you for your business!</p>
+            </div>
+
+            <div class="text-center mt-4 d-print-none">
+                <button onclick="window.print()" class="btn btn-outline-primary"><i class="fas fa-print"></i> Print Invoice</button>
+                <a asp-action="AdminBilling" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>

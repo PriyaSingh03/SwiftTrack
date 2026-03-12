@@ -1,0 +1,155 @@
+﻿@model LastMileDelivery.Models.Invoice
+@{
+    ViewData["Title"] = "Generate Delivery Invoice";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Generate Delivery Invoice</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateInvoice" method="post" onsubmit="return validateAndConfirm();">
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Invoice Number</label>
+                        <input asp-for="InvoiceNumber" class="form-control" readonly />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Date</label>
+                        <input asp-for="CreatedDate" type="text" value="@DateTime.Now.ToString("dd MMM yyyy")" class="form-control" readonly />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Due Date</label>
+                        <input asp-for="DueDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+
+                <hr />
+
+                <h5 class="text-primary mb-3">Calculation Details</h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Select Delivery</label>
+                        <select name="SelectedDeliveryId" id="deliveryDropdown" asp-items="ViewBag.Deliveries" class="form-select" onchange="fetchDeliveryData()" required>
+                            <option value="">-- Choose a Delivery --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" required>Parcel Weight (kg)</label>
+                        <input name="Weight" id="weightInput" type="number" step="0.1" class="form-control" placeholder="0.0" oninput="calculateTotal()" required/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Distance (km)</label>
+                        <input id="distanceInput" type="text" class="form-control bg-light" readonly />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Estimated Time</label>
+                        <input id="etaInput" type="text" class="form-control bg-light" readonly />
+                    </div>
+
+                    <input type="hidden" name="CalculatedAmount" id="hiddenAmount" />
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-success">Total Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-success text-white">₹</span>
+                            <input id="totalAmountDisplay" type="text" class="form-control fw-bold fs-5 text-success" readonly value="0.00" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a asp-action="AdminBilling" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Save Invoice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function validateAndConfirm() {
+    var deliveryId = document.getElementById("deliveryDropdown").value;
+    var weight = document.getElementById("weightInput").value;
+    var totalAmount = document.getElementById("hiddenAmount").value;
+
+    // Check if basic details are missing
+    if (!deliveryId || !weight || weight <= 0) {
+        alert("Please select a delivery and enter a valid parcel weight first.");
+        return false; // Stops the form from submitting
+    }
+
+    // If everything is valid, show the confirmation
+    return confirm("Confirm Generation: Total amount is ₹" + totalAmount + ". Proceed?");
+}
+
+    // === CONFIGURATION: SET YOUR RATES HERE ===
+    const RATE_PER_KM = 10;  // ₹10 per km
+    const RATE_PER_KG = 5;   // ₹5 per kg
+    const BASE_FEE = 20;     // ₹20 fixed base fee
+    // ==========================================
+
+    let currentDistance = 0;
+
+    function fetchDeliveryData() {
+        //get the delivery data from delivery table
+        var deliveryId = document.getElementById("deliveryDropdown").value;
+
+        // if no delivery entered reset all the fields
+        if (!deliveryId) {
+            resetFields();
+            return;
+        }
+
+        // Call the Controller API
+        fetch(`/Admin/GetDeliveryInfo?deliveryId=${deliveryId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("distanceInput").value = data.distance;
+                    document.getElementById("etaInput").value = data.eta;
+                    currentDistance = parseFloat(data.distance);
+                    calculateTotal(); // Recalculate if weight is already entered
+                } else {
+                    alert("Could not fetch route data for this delivery.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function calculateTotal() {
+        var weight = parseFloat(document.getElementById("weightInput").value) || 0;
+
+        if (currentDistance > 0 && weight > 0) {
+            // CALCULATION LOGIC
+            var total = BASE_FEE + (currentDistance * RATE_PER_KM) + (weight * RATE_PER_KG);
+
+            // Update UI
+            document.getElementById("totalAmountDisplay").value = total.toFixed(2);
+            document.getElementById("hiddenAmount").value = total.toFixed(2);
+        } else {
+            document.getElementById("totalAmountDisplay").value = "0.00";
+            document.getElementById("hiddenAmount").value = "0";
+        }
+    }
+
+    function resetFields() {
+        document.getElementById("distanceInput").value = "";
+        document.getElementById("etaInput").value = "";
+        document.getElementById("totalAmountDisplay").value = "0.00";
+        currentDistance = 0;
+    }
+
+
+</script>

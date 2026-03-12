@@ -1,0 +1,97 @@
+﻿@{
+    ViewData["Title"] = "Sign Up";
+    Layout = "~/Views/Shared/_Login.cshtml";
+}
+
+<div class="login-page">
+    <div class="login-left">
+        <div class="login-left-content">
+            <h1>Create Account</h1>
+            <p>Join SwiftTrack to manage deliveries.</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/2769/2769339.png" alt="Delivery" />
+        </div>
+    </div>
+
+    <div class="login-right">
+        <div class="login-form-container">
+            <a asp-controller="Home" asp-action="Index" class="logo" style="margin-bottom: 32px; display: inline-flex; text-decoration: none; align-items: center; gap: 10px;">
+                <div class="logo-icon">
+                    <i class="fas fa-truck-fast"></i>
+                </div>
+                <span style="font-size: 1.5rem; font-weight: bold; color: #333;">SwiftTrack</span>
+            </a>
+
+            <h2>Sign Up</h2>
+            <p style="color: #666; margin-bottom: 2rem;">Create your account to start managing deliveries</p>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger text-center small">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <form asp-controller="Auth" asp-action="Register" method="post" id="registerForm">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name</label>
+                    <input type="text" name="Username" class="form-control" placeholder="Full Name" required
+                           style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email Address</label>
+                    <input type="email" name="Email" class="form-control" placeholder="name@example.com" required
+                           style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Phone Number</label>
+                    <input type="tel" name="PhoneNumber" class="form-control" placeholder="10-digit mobile number" required
+                           pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number"
+                           style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label>
+                    <input type="password" name="Password" class="form-control" placeholder="Create a password" required
+                           style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Confirm Password</label>
+                    <input type="password" name="ConfirmPassword" class="form-control" placeholder="Confirm password" required
+                           style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Register As</label>
+                    <select name="role" class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; background-color: white;">
+                        @* <option value="CUSTOMER">Customer</option> *@
+                        <option value="DELIVERY_AGENT">Delivery Agent</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary login-btn">
+                    Sign Up
+                </button>
+            </form>
+
+            <div class="login-divider" style="text-align: center; margin: 1.5rem 0; color: #999;">or</div>
+
+            <p class="signup-link" style="text-align: center;">
+                Already have an account?
+                <a asp-controller="Auth" asp-action="Login">Sign In</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+        // This shows a simple browser alert
+        alert("Registration process started... Welcome to SwiftTrack!");
+    });
+</script>

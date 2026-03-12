@@ -1,0 +1,261 @@
+﻿@{
+    ViewData["Title"] = "Delivery View";
+    Layout = "~/Views/Shared/_Agent.cshtml";
+}
+<style>
+    /* 1. Reset the layout provided by _Agent.cshtml */
+    .main-content {
+        height: 100vh !important;
+        width: calc(100% - 260px) !important; /* Adjust 260px to match your sidebar width */
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        position: fixed;
+        right: 0;
+        top: 0;
+    }
+
+    .delivery-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+    }
+
+    .dashboard-header {
+        padding: 15px 25px;
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+        flex-shrink: 0; /* Prevents header from squishing */
+        z-index: 20;
+    }
+
+    /* 2. The Map Wrapper must be the "Flexible" element */
+    .map-wrapper {
+        flex: 1; /* This tells it to take up ALL remaining space */
+        position: relative;
+        width: 100%;
+        background: #e5e7eb;
+    }
+
+    #map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .routing-info-overlay {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 12px 25px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        z-index: 1000;
+        font-weight: 700;
+        display: flex;
+        gap: 20px;
+        white-space: nowrap; /* Prevents text wrapping in small views */
+    }
+</style>
+
+<div class="delivery-container">
+    <header class="dashboard-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="margin:0; font-size: 1.4rem; color: #2c3e50;">Delivery Route</h2>
+                <div style="font-size: 0.9rem; margin-top: 4px;">
+                    <span class="text-muted">Status:</span>
+                    <span class='badge @(ViewBag.Status == "IN_TRANSIT" ? "bg-primary" : "bg-warning text-dark")'>@ViewBag.Status</span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                @if (ViewBag.FromLat != null)
+                {
+                    <button onclick="startDummySimulation()" class="btn btn-warning btn-sm border">
+                        <i class="fas fa-play"></i> Simulate Movement
+                    </button>
+                }
+            </div>
+            <div>
+
+                <a href="@Url.Action("Dashboard", "Agent")" class="btn btn-light border btn-sm">
+                    <i class="fas fa-chevron-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </header>
+
+    @if (ViewBag.FromLat != null)
+    {
+        <div class="map-wrapper">
+            <div id="map"></div>
+            <div class="routing-info-overlay">
+                <span style="color: #2ecc71;"><i class="fas fa-truck"></i> Navigation Active</span>
+                <span id="dist-display" style="color: #34495e;">Calculating...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+            <div class="text-center p-5">
+                <div class="display-1 text-success mb-3"><i class="fas fa-check-circle"></i></div>
+                <h3>Delivery Completed</h3>
+                <p class="text-muted">This order has been successfully closed.</p>
+                <a href="@Url.Action("Dashboard", "Agent")" class="btn btn-primary mt-3">Return to Dashboard</a>
+            </div>
+        </div>
+    }
+</div>
+
+@* External Resources *@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@if (ViewBag.FromLat != null)
+{
+    <script>
+        // --- GLOBAL VARIABLES ---
+        var routeCoordinates = [];
+        var currentRouteIndex = 0;
+        var simulationInterval = null;
+        var movingMarker = null;
+        var dynamicRouteLine = null;
+
+        // 1. Initialize Map
+        var map = L.map('map').setView([@(ViewBag.FromLat), @(ViewBag.FromLng)], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // 2. Icons
+        var agentIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1048/1048329.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40]
+        });
+
+        var destIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1239/1239525.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40]
+        });
+
+        // 3. Routing Control
+        var control = L.Routing.control({
+            waypoints: [
+                L.latLng(@(ViewBag.FromLat), @(ViewBag.FromLng)),
+                L.latLng(@(ViewBag.ToLat), @(ViewBag.ToLng))
+            ],
+            lineOptions: {
+                styles: [{ color: 'transparent', opacity: 0, weight: 0 }]
+            },
+            createMarker: function(i, wp, n) {
+                if (i === 0) {
+                    movingMarker = L.marker(wp.latLng, { icon: agentIcon }).bindPopup("Your Location");
+                    return movingMarker;
+                }
+                return L.marker(wp.latLng, { icon: destIcon }).bindPopup("Customer Location");
+            },
+            addWaypoints: false,
+            draggableWaypoints: false,
+            show: false
+        }).addTo(map);
+
+        // 4. On Route Found -> Draw Initial Line
+        control.on('routesfound', function(e) {
+            var routes = e.routes;
+            var summary = routes[0].summary;
+            routeCoordinates = routes[0].coordinates;
+
+            if (dynamicRouteLine) map.removeLayer(dynamicRouteLine);
+
+            dynamicRouteLine = L.polyline(routeCoordinates, {
+                color: '#3498db',
+                weight: 6,
+                opacity: 0.8
+            }).addTo(map);
+
+           // Use the value from the database passed through ViewBag
+
+    var databaseDistance = '@ViewBag.DatabaseDistance';
+ 
+    if (databaseDistance && databaseDistance !== "") {
+
+        document.getElementById('dist-display').innerHTML =
+
+            '<i class="fas fa-map-marker-alt"></i> ' + databaseDistance + ' km';
+
+    } else {
+
+        // Fallback only if the database record is missing
+
+        document.getElementById('dist-display').innerHTML =
+
+            '<i class="fas fa-map-marker-alt"></i> ' + (summary.totalDistance / 1000).toFixed(2) + ' km';
+
+    }
+
+ 
+
+            map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [50, 50] });
+        });
+
+        // Layout fix
+        setTimeout(function() { map.invalidateSize(); }, 500);
+
+        // --- SIMULATION LOGIC ---
+        function startDummySimulation() {
+            if (routeCoordinates.length === 0) {
+                alert("Please wait for the route to load.");
+                return;
+            }
+
+            alert("Simulation Started! Route will update every 5 seconds.");
+
+            if (simulationInterval) clearInterval(simulationInterval);
+
+            simulationInterval = setInterval(function() {
+                if (currentRouteIndex >= routeCoordinates.length) {
+                    clearInterval(simulationInterval);
+                    alert("Arrived at destination!");
+                    return;
+                }
+
+                var nextPoint = routeCoordinates[currentRouteIndex];
+
+                if (nextPoint) {
+                    movingMarker.setLatLng([nextPoint.lat, nextPoint.lng]);
+                    map.panTo([nextPoint.lat, nextPoint.lng]);
+
+                    var remainingPoints = routeCoordinates.slice(currentRouteIndex);
+                    dynamicRouteLine.setLatLngs(remainingPoints);
+
+                    sendLocationUpdate(nextPoint.lat, nextPoint.lng);
+                }
+
+                currentRouteIndex += 5;
+            }, 5000);
+        }
+
+        function sendLocationUpdate(lat, lng) {
+            $.post('/Agent/UpdateLocation', {
+                deliveryId: '@ViewBag.DeliveryId',
+                lat: lat,
+                lng: lng
+            });
+        }
+    </script>
+}

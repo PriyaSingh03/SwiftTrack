@@ -1,0 +1,187 @@
+﻿@{
+    ViewData["Title"] = "Add Delivery";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<div class="content-wrapper">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="fw-semibold">Add New Delivery</h2>
+        <p class="text-muted">
+            Fill out the form below to assign a new delivery.
+        </p>
+    </div>
+
+    <!-- Card -->
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form asp-action="AddDelivery" asp-controller="Admin" method="post" onsubmit="return confirm('Delivery assigned successfully.....');">
+                <div class="row g-4">
+
+                    <!-- LEFT COLUMN -->
+                    <div class="col-lg-6">
+
+                        <div class="mb-3">
+                            <label class="form-label">Order ID</label>
+                            <input type="text"
+                                   name="OrderNumber"
+                                   class="form-control"
+                                   value="#DEL-"
+                                   readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Customer</label>
+                            <select name="CustomerName" class="form-control" required>
+                                <option value="">-- Select Customer --</option>
+                                @if (ViewBag.Customers != null)
+                                {
+                                    foreach (var user in ViewBag.Customers)
+                                    {
+                                        <option value="@user.Username">@user.Username</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        
+
+                        <!-- 🔴 NEW FIELD (FUNCTIONAL CHANGE ONLY) -->
+                        <div class="mb-3">
+                            <label class="form-label">Delivery Pincode</label>
+                            <select name="DeliveryPincode" id="pincodeSelect" class="form-control" required onchange="updateAddress()">
+                                <option value="">-- Select Pincode --</option>
+                                <option value="600079">600079</option>
+                                <option value="600084">600084</option>
+                                <option value="600002">600002</option>
+                                <option value="600003">600003</option>
+                                <option value="600004">600004</option>
+                                <option value="600005">600005</option>
+                                <option value="600008">600008</option>
+                                <option value="600100">600100</option>
+								<option value="600020">600020</option>
+								<option value="600017">600017</option>
+								<option value="600034">600034</option>
+								<option value="600018">600018</option>
+								<option value="600014">600014</option>
+								<option value="600016">600016</option>
+								<option value="600032">600032</option>
+								<option value="600042">600042</option>
+								<option value="600043">600043</option>
+								<option value="600045">600045</option>
+								<option value="600044">600044</option>
+								<option value="600130">600130</option>
+                                <option value="600119">600119</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Delivery Address (Auto-suggested)</label>
+                            <input name="Destination" id="addressInput" class="form-control"
+                                   placeholder="Select pincode to populate address" readonly required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Assign Agent</label>
+                            <select name="AssignedAgentId" class="form-control" required>
+                                <option value="">-- Select Agent --</option>
+                                @if (ViewBag.Agents != null)
+                                {
+                                    foreach (var agent in ViewBag.Agents)
+                                    {
+                                        <option value="@agent.UserId">@agent.Username</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label d-block">Status</label>
+
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="Status"
+                                       value="ASSIGNED" required/>
+                                <label class="form-check-label">Assigned</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="col-lg-6">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Delivery Date</label>
+                                <input type="date"
+                                       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                       name="DeliveryDate"
+                                       class="form-control" required/>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">ETA</label>
+                                <input type="time"
+                                       name="ETA"
+                                       class="form-control" required />
+                            </div>
+                        </div>
+
+                        
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+
+                            <button type="submit" class="btn btn-primary">
+                                <!--<a asp-action="AdminDeliveries" asp-controller="Admin">Save Delivery</a>-->Save Delivery
+                            </button>
+                            <a asp-controller="Admin"
+                               asp-action="AdminDeliveries"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+    const locationMap = {
+        
+        "600079": "Sowcarpet, Chennai",         // lat 13.0674 lng 80.2376
+        "600084": "Purasawakkam, Chennai",          // lat 13.08967 lng 80.2523
+        "600002": "Pudupet, Anna Road, Chintadripet",      //lat 13.0745 lng 80.2704
+        "600003": "Park Town, Central Station",           //  13.0816° N, 80.2752° E
+        "600004": "Mylapore, Santhome, Royapettah",       //13.0369° N, 80.2676° E
+        "600005": "Chepauk, Triplicane",                  // 13.0640° N, 80.2806° E
+        "600008": "Egmore, Chennai",                      // 13.0853° N latitude and 80.2647° E longitude
+        "600100": "Medavakkam, Chennai",                   // 13.0845° N latitude and 80.2389° E longitude
+		"600020": "Adyar, Chennai, Tamil Nadu",
+		"600017": "T.Nagar, Chennai, Tamil Nadu",       
+        "600034": "Nungambakkam, Chennai, Tamil Nadu",                 
+        "600018": "Alwarpet, Central Chennai, Tamil Nadu",
+        "600014": "Royapettah, Chennai, Tamil Nadu",
+        "600016": "Mambalam, Chennai, Tamil Nadu",
+        "600032": "Guindy, South Chennai, Tamil Nadu",
+        "600042": "Velachery, South Chennai, Tamil Nadu",
+        "600044": " Chromepet, Chennai, Tamil Nadu",
+		"600043": "Pallavaram, Chengalpattu, Tamil Nadu",   
+        "600045": "Tambaram, Chengalpattu, Tamil Nadu",
+        "600130": "Navalur, Kanchipuram, Tamil Nadu",
+        "600119": "Sholinganallur, Kanchipuram, Tamil Nadu"
+    };
+
+    function updateAddress() {
+        const pincode = document.getElementById("pincodeSelect").value;
+        const addressField = document.getElementById("addressInput");
+
+        if (locationMap[pincode]) {
+            addressField.value = locationMap[pincode];
+        } else {
+            addressField.value = "";
+        }
+    }
+</script>

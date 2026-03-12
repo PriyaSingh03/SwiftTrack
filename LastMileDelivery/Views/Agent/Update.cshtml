@@ -1,0 +1,69 @@
+﻿@model LastMileDelivery.Models.Delivery
+
+@{
+    ViewData["Title"] = "Update Delivery";
+    Layout = "~/Views/Shared/_Agent.cshtml";
+}
+
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>Update Delivery #DEL-@Model.DeliveryId</h1>
+        <p>Update delivery status and current location</p>
+    </div>
+</header>
+
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+        <div class="card-body">
+
+            <div class="form-group mb-3">
+                <label>Status</label>
+                <select name="Status" id="statusSelect" class="form-control" required onchange="toggleProofSection()">
+                    <option value="ASSIGNED" selected="@("ASSIGNED" == Model.Status)">Assigned</option>
+                    <option value="IN_TRANSIT" selected="@("IN_TRANSIT" == Model.Status)">In Transit</option>
+                    <option value="DELIVERED" selected="@("DELIVERED" == Model.Status)">Delivered</option>
+                    <option value="CANCELLED" selected="@("CANCELLED" == Model.Status)">Cancelled</option>
+                </select>
+            </div>
+
+            <div id="proofSection" class="form-group mb-3" style="display:none; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px dashed #ccc;">
+                <label class="fw-bold text-success"><i class="fas fa-camera"></i> Proof of Delivery</label>
+                <p class="text-muted small">Please upload a photo of the package at the doorstep or customer signature.</p>
+
+                <input type="file" name="ProofImage" class="form-control" accept="image/*" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Current Area Pincode</label>
+                <input type="number" name="CurrentPincode" class="form-control" placeholder="Enter your current area pincode" required value="600001" disabled/> 
+                <small class="text-muted">Used to automatically calculate your current location</small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Update Delivery</button>
+                <a asp-controller="Agent" asp-action="ViewDelivery" asp-route-id="@Model.DeliveryId" class="btn btn-secondary">View Route</a>
+                <a asp-controller="Agent" asp-action="Dashboard" class="btn btn-outline">Back</a>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleProofSection() {
+        var status = document.getElementById("statusSelect").value;
+        var proofDiv = document.getElementById("proofSection");
+
+        if (status === "DELIVERED") {
+            proofDiv.style.display = "block";
+            // Make it required if delivered
+            proofDiv.querySelector("input").required = true;
+        } else {
+            proofDiv.style.display = "none";
+            proofDiv.querySelector("input").required = false;
+        }
+    }
+
+    // Run on load in case page reloads with "Delivered" selected
+    document.addEventListener("DOMContentLoaded", toggleProofSection);
+</script>

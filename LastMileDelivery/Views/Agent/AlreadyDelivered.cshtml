@@ -1,0 +1,21 @@
+﻿@model LastMileDelivery.Models.Delivery
+@{
+    Layout = "~/Views/Shared/_Agent.cshtml";
+}
+
+<div class="card" style="max-width: 500px; margin: 40px auto; text-align: center;">
+    <div class="card-body p-5">
+        <div class="mb-4">
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: #2d3436;"></i>
+        </div>
+        <h2 class="fw-bold">Already Delivered</h2>
+        <p class="text-muted">
+            The proof of delivery for order #DEL-@Model.DeliveryId has already been submitted.
+            This record is now locked and cannot be updated further.
+        </p>
+        <a asp-action="Dashboard" class="btn btn-primary mt-3 w-100"
+           style="background-color: #fd7e14; border: none;">
+            Back to Dashboard
+        </a>
+    </div>
+</div>

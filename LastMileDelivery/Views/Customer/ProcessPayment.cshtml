@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Complete Payment";
+    Layout = "~/Views/Shared/_Customer.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 12px;">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h4><i class="fas fa-file-invoice"></i> Payment Invoice</h4>
+        </div>
+        <div class="card-body p-4">
+            
+
+            <form asp-action="ConfirmPayment" method="post" onsubmit="return confirm("Payment Successfully done")">
+                <input type="hidden" name="invoiceId" value="@ViewBag.InvoiceId" />
+                <input type="hidden" name="deliveryId" value="@ViewBag.DeliveryId" />
+
+                <div class="invoice-summary mb-4" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <div class="d-flex justify-content-between">
+                        <span>Invoice:</span>
+                        <strong>@ViewBag.InvoiceNo</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Parcel Specs:</span>
+                        <strong>@ViewBag.ParcelDetails</strong>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between h5">
+                        <span>Amount:</span>
+                        <span class="text-primary">₹@ViewBag.Amount</span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>UPI ID</label>
+                    <input type="text" name="upiId" class="form-control" placeholder="user@bank" required />
+                </div>
+
+                <form asp-action="CustomerDashboard" method="post" onsubmit="return confirm('Payment Successfully done.....');">
+    <input type="hidden" name="invoiceId" value="@ViewBag.InvoiceId" />
+    <button type="submit" class="btn btn-success">Pay Now</button>
+</form>
+            </form>
+        </div>
+    </div>
+</div>

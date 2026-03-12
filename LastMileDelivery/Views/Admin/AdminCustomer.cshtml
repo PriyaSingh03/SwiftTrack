@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Customers";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<!-- Header -->
+<header class="dashboard-header">
+    <div class="header-left">
+        <h1>Customers</h1>
+        <p>Manage customer accounts and orders</p>
+    </div>
+    <div class="header-right">
+        <a asp-controller="Admin" asp-action="AddCustomer" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Customer
+        </a>
+    </div>
+</header>
+
+<!-- Customers Table -->
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Phone No.</th>
+                <th>Total Orders</th>                
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar">
+                                @customer.Username.Substring(0, 2).ToUpper()
+                            </div>
+                            <div>
+                                <strong>@customer.Username</strong>
+                                <small>ID: #CUS-@customer.UserId</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@customer.Email</td>
+                    <td>@customer.Role</td>
+                    <td>@customer.PhoneNumber</td>
+
+                    <td>@customer.Deliveries Orders</td>   @* Orders count later *@
+                    <td class="actions">
+                        <form asp-action="DeleteCustomer" method="post" style="display:inline;"
+                              onsubmit="return confirm('Are you sure?');">
+                            @Html.AntiForgeryToken() <input type="hidden" name="username" value="@customer.Username" />
+                            <button type="submit" class="action-btn danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
